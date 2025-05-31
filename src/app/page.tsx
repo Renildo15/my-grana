@@ -33,8 +33,6 @@ export default function Dashboard() {
     const { data: transactions, isLoading: transationsIsLoading, error: transactionsError} = useTransactions(token, params);
     const { data:financialSummary } = useTransactionsBalance(token);
 
-    console.log(financialSummary)
-
     const router = useRouter()
     useEffect(() => {
     if (!isAuthenticated) {
@@ -48,7 +46,7 @@ export default function Dashboard() {
         <div className="min-h-screen bg-white flex flex-col items-center justify-center">
             <div className="w-[60%] flex flex-col justify-center items-center gap-4">
                 <h1 className="text-2xl text-gray-800">Bem-vindo, <strong>{user.username}</strong></h1>
-                <Balance balance={financialSummary?.balance || 0}/>
+                <Balance summary={financialSummary}/>
                 <div className="w-full flex flex-col gap-4">
                     <div className="flex justify-between">
                         <h2 className="text-2xl text-gray-800 text-left">Transações</h2>
