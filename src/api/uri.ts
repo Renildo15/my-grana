@@ -1,0 +1,1 @@
+export const uri = process.env.NEXT_PUBLIC_APIURL;
