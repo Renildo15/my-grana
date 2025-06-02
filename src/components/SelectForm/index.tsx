@@ -1,6 +1,6 @@
 import { Category } from "@/types";
-import Select from "../Select";
 import { OptionType } from "../../data";
+import { forwardRef } from "react";
 
 interface ISelectFormProps {
     label: string;
@@ -8,11 +8,33 @@ interface ISelectFormProps {
     optionDefault: string;
 }
 
-export default function SelectForm({ options, label, optionDefault }: ISelectFormProps) {
+const SelectForm = forwardRef<HTMLSelectElement, ISelectFormProps>(({label, options, optionDefault, ...props}, ref) => {
+    const getOptionValue = (option:Category | OptionType) => {
+        if ('value' in option) {
+            return option.value
+        }
+
+        return option.name
+    }
     return (
         <div className="flex flex-col gap-2 w-full">
-            <label>{label}</label>
-            <Select options={options} widthFull={true} label={optionDefault}/>
+             <label>{label}</label>
+             <select 
+                className="select w-full focus:outline-0" 
+                ref={ref}
+                {...props}
+            >
+                <option value="">{optionDefault}</option>
+                {options.map((option) => (
+                    <option key={getOptionValue(option)} value={getOptionValue(option)}>
+                        {option.name}
+                    </option>
+                ))}
+            </select>
         </div>
     )
-}
+})
+
+SelectForm.displayName = "SelectForm"
+
+export default SelectForm;
