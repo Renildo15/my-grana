@@ -5,6 +5,7 @@ import SelectForm from "../SelectForm";
 import { locationOptions, transactionTypes } from "../../data";
 import { useRef, useState } from "react";
 import ModalAddCategory from "../ModalAddcategory";
+import * as yup from 'yup';
 
 interface IModalAddTransactionProps {
     setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -21,27 +22,61 @@ export default function ModalAddTransaction(props: IModalAddTransactionProps) {
     const categoryRef = useRef<HTMLSelectElement>(null)
     const locationRef = useRef<HTMLSelectElement>(null)
     const typeRef = useRef<HTMLSelectElement>(null)
-    
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
 
-        const name = nameRef.current?.value
-        const value = valueRef.current?.value
-        const date = dateRef.current?.value
-        const category = categoryRef.current?.value
-        const location = locationRef.current?.value
-        const type = typeRef.current?.value
-
-        console.log(
-            {
-                name,
-                value,
-                date,
-                category,
-                location,
-                type
+    const schema = yup.object().shape({
+        name: yup.string().required("Nome obrigatório"),
+        value: yup
+        .number()
+        .required("Valor é obrigatório")
+        .positive("Deve ser positivo")
+        .typeError("Insirira um valor vállido")
+        .moreThan(0, 'O valor deve ser maior que zero')
+        .max(1000000, 'O valor não pode exceder 1.000.000')
+        .test(
+            'is-decimal',
+            'O valor deve ter no máximo 2 casas decimais',
+        (value) => value === undefined || value === null || /^\d+(\.\d{1,2})?$/.test(value.toString())
+        ),
+       date: yup
+        .string()
+        .required("Data é obrigatória")
+        .test(
+            "is-valid-date",
+            "Digite uma data válida",
+                (value) => {
+                if (!value) return false; // Já cobre o required
+                // Verifica se é uma data válida (formato ISO ou similar)
+                return !isNaN(Date.parse(value));
             }
         )
+        .transform((value) => (value === "" ? undefined : value)),
+        category: yup.string().required("Categoria é obrigatória"),
+    })
+    
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+       
+
+        const formData = {
+            name : nameRef.current?.value,
+            value : valueRef.current?.value,
+            date : dateRef.current?.value,
+            category : categoryRef.current?.value,
+            location : locationRef.current?.value,
+            type : typeRef.current?.value,
+        }
+        // console.log(formData)
+        try {
+            await schema.validate(formData, { abortEarly: false });
+            console.log(formData);
+        } catch (err) {
+            if (err instanceof yup.ValidationError) {
+                err.inner.forEach(error => {
+                    alert(error.message);
+                });
+            }
+        }
     }
 
     return (
@@ -58,7 +93,7 @@ export default function ModalAddTransaction(props: IModalAddTransactionProps) {
 
                     <Input
                         label="Valor"
-                        type="text"
+                        type="number"
                         placeholder="Valor"
                         ref={valueRef}
                     />
