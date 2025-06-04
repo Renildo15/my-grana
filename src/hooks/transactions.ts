@@ -47,7 +47,7 @@ export function useTransactions(token:string, params?: IParams) {
 
     const url = `${uri}/transactions/list/${query.toString() ? `?${query.toString()}` : ''}`;
 
-    const { data, error, isLoading, isValidating, mutate } = useSWR<FinancialSummary>([url], () => fetcherSimple(url, token))
+    const { data, error, isLoading, isValidating, mutate } = useSWR<ITransactionsResponse>([url], () => fetcherSimple(url, token))
 
     return {
         data,
@@ -78,12 +78,12 @@ export async function createTransaction(token:string, data:CreateTransaction) {
         message: string;
     }
 
-     try {
-    const res = await axios.post<IResponse>(url, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      const res = await axios.post<IResponse>(url, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
     return res.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
