@@ -89,7 +89,7 @@ export default function Dashboard() {
 
                     { showAddModal && (
 
-                        <ModalAddTransaction setIsModalOpen={setShowAddModal}/>
+                        <ModalAddTransaction setIsModalOpen={setShowAddModal} categories={categories ?? []}/>
                     )}
 
                     {transactions?.results.length !== 0 ? (

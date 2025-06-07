@@ -1,4 +1,3 @@
-import { categories } from "@/mocks/mocks";
 import Input from "../Input";
 import Modal from "../Modal";
 import SelectForm from "../SelectForm";
@@ -6,14 +5,19 @@ import { locationOptions, transactionTypes } from "../../data";
 import { useRef, useState } from "react";
 import ModalAddCategory from "../ModalAddcategory";
 import * as yup from 'yup';
+import { createTransaction, useTransactions } from "@/hooks/transactions";
+import { useAuth } from "@/context/AuthContext";
+import { Category, CreateTransaction } from "@/types";
 
 interface IModalAddTransactionProps {
     setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    
+    categories: Category[];
 }
 
 export default function ModalAddTransaction(props: IModalAddTransactionProps) {
     const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+    const { token } = useAuth();
+    const { mutate: transactionsMutate} = useTransactions(token);
 
     const nameRef = useRef<HTMLInputElement>(null)
     const valueRef = useRef<HTMLInputElement>(null)
@@ -50,26 +54,40 @@ export default function ModalAddTransaction(props: IModalAddTransactionProps) {
             }
         )
         .transform((value) => (value === "" ? undefined : value)),
-        category: yup.string().required("Categoria é obrigatória"),
+        // category: yup.string().required("Categoria é obrigatória"),
     })
     
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-       
-
-        const formData = {
-            name : nameRef.current?.value,
-            value : valueRef.current?.value,
-            date : dateRef.current?.value,
-            category : categoryRef.current?.value,
-            location : locationRef.current?.value,
-            type : typeRef.current?.value,
+    
+        const formData:CreateTransaction  = {
+            name : nameRef.current?.value ?? '',
+            value : valueRef.current?.value ?? '',
+            date : dateRef.current?.value ?? '',
+            category_id : categoryRef.current?.value ?? '',
+            location : (locationRef.current?.value as "cash" | "bank" | "lent") ?? '',
+            transaction_type : (typeRef.current?.value as "expense" | "income" ?? ''),
         }
-        // console.log(formData)
+
+        console.log(formData)
         try {
             await schema.validate(formData, { abortEarly: false });
-            console.log(formData);
+            await createTransaction(token, formData)
+
+            alert("Transação criada com sucesso!");
+
+            props.setIsModalOpen(false);
+
+            if (nameRef.current) nameRef.current.value = '';
+            if (valueRef.current) valueRef.current.value = '';
+            if (dateRef.current) dateRef.current.value = '';
+            if (categoryRef.current) categoryRef.current.value = '';
+            if (locationRef.current) locationRef.current.value = '';
+            if (typeRef.current) typeRef.current.value = '';
+
+            transactionsMutate();
+
         } catch (err) {
             if (err instanceof yup.ValidationError) {
                 err.inner.forEach(error => {
@@ -97,7 +115,7 @@ export default function ModalAddTransaction(props: IModalAddTransactionProps) {
                         placeholder="Valor"
                         ref={valueRef}
                     />
-                    <SelectForm options={categories} label={"Categoria"} optionDefault={"Selecione uma categoria"} ref={categoryRef}/>
+                    <SelectForm options={props.categories} label={"Categoria"} optionDefault={"Selecione uma categoria"} ref={categoryRef}/>
                     <SelectForm options={locationOptions} label={"Onde está o dinheiro?"} optionDefault={"Selecione local"} ref={locationRef}/>
                     <SelectForm options={transactionTypes} label={"Tipo de transação"} optionDefault={"Selecione tipo"} ref={typeRef}/>
                     

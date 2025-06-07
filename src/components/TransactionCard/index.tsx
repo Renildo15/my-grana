@@ -10,9 +10,11 @@ export default function TransactionCard ({ transaction }: ITransactionProps) {
     const valueColor = isExpense ? "text-red-500" : "text-green-500";
     const valueSymbol = isExpense ? "-" : "+";
 
+    console.log(transaction)
+
     return (
         <div className="bg-white rounded-lg shadow-md p-4 mb-3 border-l-4 relative group"
-             style={{ borderLeftColor: transaction.category.color }}>
+             style={{ borderLeftColor: transaction.category?.color ?? "#000000" }}>
           
           {/* Botões de Ação (aparecem no hover) */}
           <div className="absolute top-0 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -44,9 +46,9 @@ export default function TransactionCard ({ transaction }: ITransactionProps) {
               <div className="flex items-center mt-1">
                 <span 
                   className="inline-block w-3 h-3 rounded-full mr-2" 
-                  style={{ backgroundColor: transaction.category.color }}
+                  style={{ backgroundColor: transaction.category?.color ?? "#000000" }}
                 ></span>
-                <span className="text-sm text-gray-600">{transaction.category.name}</span>
+                <span className="text-sm text-gray-600">{transaction.category?.name}</span>
               </div>
             </div>
     
