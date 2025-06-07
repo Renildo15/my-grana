@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import Input from "../Input";
 import Modal from "../Modal";
 import * as yup from 'yup';
-import { createCategory } from "@/hooks/categories";
+import { createCategory, useCategories } from "@/hooks/categories";
 import { useAuth } from "@/context/AuthContext";
 import { CreateCategory } from "@/types";
 import axios from "axios";
@@ -16,6 +16,8 @@ export default function ModalAddCategory(props: IModalAddTransactionProps) {
     const {token} = useAuth();
     const nameRef = useRef<HTMLInputElement>(null)
     const colorRef = useRef<HTMLInputElement>(null)
+
+    const { mutate: categoriesMutate} = useCategories(token);
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -42,6 +44,7 @@ export default function ModalAddCategory(props: IModalAddTransactionProps) {
 
             if (nameRef.current) nameRef.current.value = '';
             if (colorRef.current) colorRef.current.value = '#000000';
+            categoriesMutate();
 
         } catch (error) {
              if (error instanceof yup.ValidationError) {
