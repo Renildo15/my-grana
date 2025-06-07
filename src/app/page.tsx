@@ -1,7 +1,6 @@
 'use client'
 
 import { useAuth } from "@/context/AuthContext";
-import { categories } from "@/mocks/mocks";
 import { RiAddBoxLine } from "react-icons/ri";
 import SearchInput from "@/components/SearchInput";
 import Balance from "@/components/Balance";
@@ -11,6 +10,7 @@ import Select from "@/components/Select";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IParams, useTransactions, useTransactionsBalance } from "@/hooks/transactions";
+import { useCategories } from "@/hooks/categories";
 
 
 export default function Dashboard() {
@@ -32,6 +32,7 @@ export default function Dashboard() {
 
     const { data: transactions, isLoading: transationsIsLoading, error: transactionsError} = useTransactions(token, params);
     const { data:financialSummary } = useTransactionsBalance(token);
+    const { data: categories, isLoading: categoriesisLoading, error: categoriesError} = useCategories(token);
 
     const router = useRouter()
     useEffect(() => {
@@ -69,7 +70,21 @@ export default function Dashboard() {
                             <input className="btn" type="radio" name="transaction" aria-label="Banco" onChange={() => setLocation('bank')} checked={location==='bank'}/>
                         </form>
 
-                        <Select options={categories} label={"Selecione uma categoria"} state={category} setState={setCategory}/>
+                        
+                        { categories && categories?.length !== 0 ? (
+                            <Select 
+                                options={categories} 
+                                label={"Selecione uma categoria"} 
+                                state={category} 
+                                setState={setCategory}
+                                isLoading={categoriesisLoading}
+                                error={categoriesError}
+                            />
+                        ) : (
+                            <div className="p-2">
+                                <span className="text-xl">Nenhuma categoria encontrada</span>
+                            </div>
+                        )}
                     </div>
 
                     { showAddModal && (
