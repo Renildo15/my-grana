@@ -65,7 +65,7 @@ export default function ModalAddTransaction(props: IModalAddTransactionProps) {
             name : nameRef.current?.value ?? '',
             value : valueRef.current?.value ?? '',
             date : dateRef.current?.value ?? '',
-            category_id : categoryRef.current?.value ?? '',
+            category : categoryRef.current?.value ?? '',
             location : (locationRef.current?.value as "cash" | "bank" | "lent") ?? '',
             transaction_type : (typeRef.current?.value as "expense" | "income" ?? ''),
         }

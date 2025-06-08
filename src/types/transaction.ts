@@ -7,11 +7,11 @@ export type Transaction = {
     transaction_type: "expense" | "income";
     location: "cash" | "bank" | "lent";
     date: string;
-    category: Category
+    category: Category | string
     category_id?: string
 }
 
-export type CreateTransaction = Omit<Transaction, "id" | "category">
+export type CreateTransaction = Omit<Transaction, "id">
 
 
 export type TransactionResult = {
